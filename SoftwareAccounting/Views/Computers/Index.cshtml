@@ -1,0 +1,115 @@
+@model IEnumerable<SoftwareAccounting.Models.Computer>
+@{
+    ViewData["Title"] = "Реестр компьютеров";
+    /*
+       Список компьютеров (реестр).
+
+Строка поиска по владельцу.
+
+Сортировка по столбцам (владелец, MAC, дата).
+
+Для каждой строки – кнопка «Паспорт» (Details). Для администратора – кнопка «Удалить» и «Новый компьютер».
+    */
+}
+<div class="page-header">
+    <div class="page-title">Реестр компьютеров</div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary-custom btn-custom shadow-sm">
+            <i class="bi bi-plus-lg"></i> Новый компьютер
+        </a>
+    }
+</div>
+<div class="card-custom mb-3 py-3">
+    <form asp-action="Index" method="get" class="d-flex flex-wrap gap-2 align-items-center">
+        <input type="hidden" name="sortOrder" value="@ViewData["CurrentSort"]" />
+
+        
+        <div class="input-group" style="max-width: 350px;">
+            <span class="input-group-text bg-white">
+                <i class="bi bi-person text-muted"></i>
+            </span>
+            <input type="text"
+                   name="searchString"
+                   value="@ViewData["CurrentFilter"]"
+                   class="form-control border-start-0"
+                   placeholder="Поиск по владельцу..." />
+        </div>
+
+        
+        <div class="input-group" style="max-width: 350px;">
+            <span class="input-group-text bg-white">
+                <i class="bi bi-window text-muted"></i>
+            </span>
+            <input type="text"
+                   name="softwareSearch"
+                   value="@ViewData["SoftwareFilter"]"
+                   class="form-control border-start-0"
+                   placeholder="Поиск по названию ПО..." />
+        </div>
+
+        <button type="submit" class="btn btn-primary-custom btn-custom">Найти</button>
+
+        @if (!String.IsNullOrEmpty(ViewData["CurrentFilter"]?.ToString()) ||
+                !String.IsNullOrEmpty(ViewData["SoftwareFilter"]?.ToString()))
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary btn-custom">
+                <i class="bi bi-x-lg"></i> Сбросить
+            </a>
+        }
+    </form>
+</div>
+<div class="card-custom">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["OwnerSort"]" class="text-decoration-none text-secondary">
+                        <i class="bi bi-person"></i> Владелец <i class="bi bi-arrow-down-up small ms-1"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["MacSort"]" class="text-decoration-none text-secondary">
+                        <i class="bi bi-ethernet"></i> MAC Адрес <i class="bi bi-arrow-down-up small ms-1"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSort"]" class="text-decoration-none text-secondary">
+                        <i class="bi bi-calendar-check"></i> Проверка <i class="bi bi-arrow-down-up small ms-1"></i>
+                    </a>
+                </th>
+                <th class="text-end">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-bold text-dark">@Html.DisplayFor(modelItem => item.Owner)</div>
+                        <small class="text-muted">ID: @item.Id</small>
+                    </td>
+                    <td class="text-monospace" style="font-family: monospace;">
+                        @Html.DisplayFor(modelItem => item.MacAddress)
+                    </td>
+                    <td>
+                        <span class="badge-custom badge-gray">
+                            <i class="bi bi-clock-history me-1"></i> @item.LastCheckDate.ToShortDateString()
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-1" title="Паспорт">
+                            <i class="bi bi-file-earmark-text"></i>
+                        </a>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

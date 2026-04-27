@@ -1,0 +1,110 @@
+@model SoftwareAccounting.Models.Computer
+@{
+    ViewData["Title"] = "Управление ПО";
+    /*
+       Страница управления ПО для выбранного компьютера (только администратор).
+
+Левая колонка – список установленного ПО с кнопками удаления.
+
+Правая колонка – две формы добавления:
+
+Из справочника – выбор программы из выпадающего списка.
+Ручной ввод – ввод произвольного названия.
+    */
+}
+<div class="page-header">
+    <div>
+        <div class="text-uppercase text-secondary small fw-bold mb-1">Конфигурация ПО</div>
+        <div class="page-title">@Model.Owner</div>
+        <span class="badge-custom badge-gray font-monospace">@Model.MacAddress</span>
+    </div>
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-custom btn-outline-secondary">
+        <i class="bi bi-arrow-return-left"></i> Вернуться к паспорту
+    </a>
+</div>
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card-custom">
+            <h5 class="mb-4">Установленные компоненты</h5>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>ПО</th>
+                        <th>Лицензия</th>
+                        <th>Установлено</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Installations != null && Model.Installations.Any())
+                    {
+                        @foreach (var item in Model.Installations)
+                        {
+                            <tr>
+                                <td>
+                                    @if (item.IsOther)
+                                    {
+                                        <strong>@item.CustomSoftwareName</strong> <span class="badge bg-secondary ms-1">Other</span>
+                                    }
+                                    else
+                                    {
+                                        <strong>@item.Software?.Name</strong>
+                                    }
+                                </td>
+                                <td>@(item.Software?.License.ToString() ?? "-")</td>
+                                <td>@item.InstallDate.ToShortDateString()</td>
+                                <td class="text-end">
+                                    <form asp-action="RemoveSoftware" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger border-0">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">Список пуст</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card-custom mb-3 bg-white">
+            <h6 class="text-primary text-uppercase mb-3 fw-bold"><i class="bi bi-database-add"></i> Из справочника</h6>
+            <form asp-action="AddSoftwareFromList" method="post">
+                <input type="hidden" name="computerId" value="@Model.Id" />       
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Выберите программу</label>
+                    <select name="softwareId" class="form-select" asp-items="ViewBag.SoftwareList"></select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Дата установки</label>
+                    <input type="date" name="installDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                </div>
+                <button type="submit" class="btn btn-custom btn-primary-custom w-100">Добавить</button>
+            </form>
+        </div>
+        <div class="card-custom bg-light border">
+            <h6 class="text-secondary text-uppercase mb-3 fw-bold"><i class="bi bi-pen"></i> Ручной ввод</h6>
+            <form asp-action="AddCustomSoftware" method="post">
+                <input type="hidden" name="computerId" value="@Model.Id" />            
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Название программы</label>
+                    <input type="text" name="customName" class="form-control" placeholder="Например: Custom App v1.0" required />
+                </div>            
+                <div class="mb-3">
+                    <label class="form-label text-muted small">Дата установки</label>
+                    <input type="date" name="installDate" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                </div>          
+                <button type="submit" class="btn btn-custom btn-secondary w-100">Добавить (Other)</button>
+            </form>
+        </div>
+
+    </div>
+</div>

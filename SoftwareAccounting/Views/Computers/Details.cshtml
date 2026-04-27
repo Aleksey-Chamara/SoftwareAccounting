@@ -1,0 +1,147 @@
+@model SoftwareAccounting.Models.Computer
+@{
+    ViewData["Title"] = "Технический паспорт";
+    /*
+       «Технический паспорт» компьютера.
+
+Отображает информацию о компьютере (владелец, MAC, дата проверки).
+
+Показывает таблицу установленного ПО с возможностью сортировки по каждому столбцу.
+
+Для администратора есть кнопки «Параметры» (редактирование) и «Управление ПО».
+    */
+}
+<div class="container" style="max-width: 900px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a asp-action="Index" class="text-decoration-none text-muted">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-custom btn-outline-secondary me-2">
+                    <i class="bi bi-pencil"></i> Параметры
+                </a>
+                <a asp-action="ManageSoftware" asp-route-id="@Model?.Id" class="btn btn-custom btn-primary-custom shadow-sm">
+                    <i class="bi bi-gear-wide-connected"></i> Управление ПО
+                </a>
+            </div>
+        }
+    </div>
+    <div class="card-custom">
+        <div class="passport-header d-flex justify-content-between align-items-start">
+            <div>
+                <h2 class="mb-1">Технический паспорт</h2>
+                <p class="text-muted mb-0">Учетная единица № @Model.Id</p>
+            </div>
+            <i class="bi bi-pc-display-horizontal text-secondary" style="font-size: 3rem; opacity: 0.1;"></i>
+        </div>
+        <div class="row mb-5">
+            <div class="col-md-6">
+                <div class="detail-row">
+                    <div class="detail-label">Владелец:</div>
+                    <div class="detail-value">@Model.Owner</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">MAC Адрес:</div>
+                    <div class="detail-value font-monospace">@Model.MacAddress</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="detail-row">
+                    <div class="detail-label">Дата проверки:</div>
+                    <div class="detail-value">
+                        <span class="badge-custom badge-green">@Model.LastCheckDate.ToLongDateString()</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Всего программ:</div>
+                    <div class="detail-value">@(Model.Installations?.Count ?? 0) ед.</div>
+                </div>
+            </div>
+        </div>
+        <h4 class="mb-3 text-secondary text-uppercase fs-6 ls-1">Реестр установленного ПО</h4>
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>
+                        <a asp-action="Details" asp-route-id="@Model.Id" asp-route-sortOrder="@ViewData["NameSort"]" class="text-decoration-none text-secondary">
+                            НАИМЕНОВАНИЕ ПО <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Details" asp-route-id="@Model.Id" asp-route-sortOrder="@ViewData["LicenseSort"]" class="text-decoration-none text-secondary">
+                            ТИП ЛИЦЕНЗИИ <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Details" asp-route-id="@Model.Id" asp-route-sortOrder="@ViewData["TypeSort"]" class="text-decoration-none text-secondary">
+                            КАТЕГОРИЯ / ТИП <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                        </a>
+                    </th>
+                    <th>
+                        <a asp-action="Details" asp-route-id="@Model.Id" asp-route-sortOrder="@ViewData["DateSort"]" class="text-decoration-none text-secondary">
+                            ДАТА УСТАНОВКИ <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                        </a>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(Model.Installations != null && Model.Installations.Any())
+                {
+                    @foreach(var install in Model.Installations)
+                    {
+                        <tr>
+                            <td>
+                                @if(install.IsOther)
+                                {
+                                    <span class="fw-bold text-dark">@install.CustomSoftwareName</span>
+                                    <i class="bi bi-info-circle text-muted ms-1" title="Ручной ввод (Other)"></i>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-primary">@install.Software?.Name</span>
+                                }
+                            </td>
+                            <td>
+                                @if(install.Software != null)
+                                {
+                                    @switch(install.Software.License)
+                                    {
+                                        case SoftwareAccounting.Models.LicenseType.Licensed:
+                                            <span class="badge-custom badge-green">Лицензия</span>
+                                            break;
+                                        case SoftwareAccounting.Models.LicenseType.Free:
+                                            <span class="badge-custom badge-blue">Free</span>
+                                            break;
+                                        case SoftwareAccounting.Models.LicenseType.Shareware:
+                                            <span class="badge-custom badge-yellow">Shareware</span>
+                                            break;
+                                        case SoftwareAccounting.Models.LicenseType.Trial:
+                                            <span class="badge-custom badge-red">Trial</span>
+                                            break;
+                                    }
+                                }
+                                else 
+                                {
+                                    <span class="badge-custom badge-gray">Не определено</span>
+                                }
+                            </td>
+                            <td>@(install.Software?.SoftwareType ?? "Прочее")</td>
+                            <td class="text-muted">@install.InstallDate.ToShortDateString()</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                            Программное обеспечение не найдено
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

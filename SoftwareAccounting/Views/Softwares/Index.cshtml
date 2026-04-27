@@ -1,0 +1,68 @@
+@model IEnumerable<SoftwareAccounting.Models.Software>
+@{
+    ViewData["Title"] = "Справочник ПО";
+}
+<div class="page-header">
+    <div class="page-title">Справочник ПО</div>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-action="Create" class="btn btn-primary-custom btn-custom shadow-sm">
+            <i class="bi bi-plus-lg"></i> Добавить программу
+        </a>
+    }
+</div>
+<div class="card-custom">
+    <table class="table-custom">
+        <thead>
+            <tr>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSort"]" class="text-decoration-none text-secondary">
+                        НАЗВАНИЕ <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["LicenseSort"]" class="text-decoration-none text-secondary">
+                        ТИП ЛИЦЕНЗИИ <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Index" asp-route-sortOrder="@ViewData["TypeSort"]" class="text-decoration-none text-secondary">
+                        КАТЕГОРИЯ <i class="bi bi-arrow-down-up small ms-1" style="font-size: 0.7em;"></i>
+                    </a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model) {
+                <tr>
+                    <td class="fw-bold text-dark">
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @switch(item.License)
+                        {
+                            case SoftwareAccounting.Models.LicenseType.Licensed:
+                                <span class="badge-custom badge-green">Licensed</span>
+                                break;
+                            case SoftwareAccounting.Models.LicenseType.Free:
+                                <span class="badge-custom badge-blue">Free</span>
+                                break;
+                            case SoftwareAccounting.Models.LicenseType.Shareware:
+                                <span class="badge-custom badge-yellow">Shareware</span>
+                                break;
+                            case SoftwareAccounting.Models.LicenseType.Trial:
+                                <span class="badge-custom badge-red">Trial</span>
+                                break;
+                            default:
+                                <span class="badge-custom badge-gray">@item.License</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        <span class="text-muted"><i class="bi bi-tag me-1"></i> @Html.DisplayFor(modelItem => item.SoftwareType)</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

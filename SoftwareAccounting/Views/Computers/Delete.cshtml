@@ -1,0 +1,26 @@
+@model SoftwareAccounting.Models.Computer
+@{
+    ViewData["Title"] = "Удаление";
+    /*
+       Страница подтверждения удаления компьютера. Показывает данные удаляемого объекта.
+    */
+}
+<h1>Удаление</h1>
+<h3>Вы уверены, что хотите удалить этот компьютер?</h3>
+<div>
+    <h4>Компьютер</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">Владелец</dt>
+        <dd class = "col-sm-10">@Html.DisplayFor(model => model.Owner)</dd>    
+        <dt class = "col-sm-2">MAC адрес</dt>
+        <dd class = "col-sm-10">@Html.DisplayFor(model => model.MacAddress)</dd>
+        <dt class = "col-sm-2">Дата проверки</dt>
+        <dd class = "col-sm-10">@Html.DisplayFor(model => model.LastCheckDate)</dd>
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary">Назад</a>
+    </form>
+</div>

@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <!-- Главный макет всех страниц (кроме страницы входа).
+
+    Содержит боковое меню (sidebar) с навигацией: Главная, Компьютеры, Справочник ПО.
+
+    Внизу сайдбара отображается имя текущего пользователя и кнопка «Вход» / «Выход».
+
+    Подключает Bootstrap, Bootstrap Icons, site.css, общие скрипты. -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - IT Audit System</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SoftwareAccounting.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div id="wrapper">
+        <div id="sidebar-wrapper">
+            <div class="sidebar-heading">
+                <i class="bi bi-Motherboard"></i> IT Audit System
+            </div>
+            <div class="list-group list-group-flush mt-3">
+                <a asp-controller="Home" asp-action="Index" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active-link" : "")">
+                    <i class="bi bi-speedometer2"></i> Главная
+                </a>
+                <a asp-controller="Computers" asp-action="Index" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Computers" ? "active-link" : "")">
+                    <i class="bi bi-pc-display"></i> Компьютеры
+                </a>
+                <a asp-controller="Softwares" asp-action="Index" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Softwares" ? "active-link" : "")">
+                    <i class="bi bi-collection"></i> Справочник ПО
+                </a>
+            </div>
+            <div class="sidebar-footer">
+                @if (User.Identity != null && User.Identity.IsAuthenticated)
+                {
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-person-circle fs-4 me-2"></i>
+                        <div>
+                            <small class="d-block text-muted" style="line-height: 1;">Вы вошли как</small>
+                            <strong>@User.Identity.Name</strong>
+                        </div>
+                    </div>
+                    <a asp-controller="Account" asp-action="Logout" class="btn btn-sm btn-outline-light w-100">
+                        <i class="bi bi-box-arrow-right"></i> Выход
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-sm btn-primary w-100">
+                        <i class="bi bi-box-arrow-in-right"></i> Вход
+                    </a>
+                }
+            </div>
+        </div>
+        <div id="page-content-wrapper">
+            <div class="container-fluid">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
